@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HPPMI Maros - Admin & Dashboard Real-time</title>
+    <meta name="description" content="HPPMI Maros - Organisasi pemuda tertua di Kabupaten Maros. Berdiri sejak 1963, wadah kaderisasi dan pengabdian generasi muda Maros." />
+    <link rel="icon" href="https://ui-avatars.com/api/?name=HPPMI&background=0A5C36&color=fff&size=64" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        
+        /* Dynamic Green Palette */
+        .bg-primary { background: #0A5C36; }
+        .bg-primary-light { background: #15803D; }
+        .text-primary { color: #0A5C36; }
+        .border-primary { border-color: #0A5C36; }
+        .bg-accent { background: #10B981; }
+        .text-accent { color: #10B981; }
+        .border-accent { border-color: #10B981; }
+        .shadow-accent { box-shadow: 0 8px 32px rgba(16, 185, 129, 0.35); }
+        .shadow-primary { box-shadow: 0 8px 32px rgba(10, 92, 54, 0.30); }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(10, 92, 54, 0.92) 0%, rgba(16, 185, 129, 0.85) 50%, rgba(0, 0, 0, 0.6) 100%);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #10B981 0%, #34D399 50%, #10B981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
+        }
+        .text-shadow { text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3); }
+        .section-padding { padding: 5rem 0; }
+        @media (max-width: 768px) { .section-padding { padding: 3rem 0; } }
+
+        /* Dashboard Styles */
+        .dashboard-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            box-shadow: 0 8px 40px rgba(10, 92, 54, 0.10);
+            transform: translateY(-2px);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0A5C36, #10B981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .activity-timeline {
+            border-left: 3px solid #10B981;
+            padding-left: 1.5rem;
+        }
+        .activity-timeline .item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .activity-timeline .item::before {
+            content: '';
+            position: absolute;
+            left: -1.65rem;
+            top: 0.3rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            background: #10B981;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+        }
+        .activity-timeline .item:last-child {
+            padding-bottom: 0;
+        }
+        .badge-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .badge-status.ongoing { background: #dcfce7; color: #166534; }
+        .badge-status.upcoming { background: #fef3c7; color: #92400e; }
+        .badge-status.done { background: #e5e7eb; color: #374151; }
+
+        /* Admin sidebar */
+        .admin-sidebar {
+            background: #0A5C36;
+            color: white;
+            min-height: 100vh;
+            width: 260px;
+            position: sticky;
+            top: 0;
+            align-self: start;
+        }
+        .admin-sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+        .admin-sidebar a:hover, .admin-sidebar a.active {
+            background: rgba(255,255,255,0.12);
+            color: white;
+        }
+        .admin-sidebar a.active {
+            background: rgba(16,185,129,0.3);
+            border-right: 3px solid #10B981;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes pulseSlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-pulse-slow { animation: pulseSlow 4s ease-in-out infinite; }
+        
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee { animation: marquee 25s linear infinite; }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .counter-animate { animation: countUp 0.8s ease-out forwards; }
+
+        /* Realtime update badge */
+        .live-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-[#f4f7f6] text-gray-800 antialiased">
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-dark border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                        <span class="text-white font-extrabold text-lg">H</span>
+                    </div>
+                    <div>
+                        <span class="text-white font-bold text-lg tracking-tight">HPPMI</span>
+                        <span class="text-accent font-medium text-sm block -mt-1">Maros</span>
+                    </div>
+                </div>
+                <div class="hidden lg:flex items-center gap-8 text-sm font-medium">
+                    <a href="#" class="text-white/80 hover:text-accent transition">Beranda</a>
+                    <a href="#tentang" class="text-white/80 hover:text-accent transition">Tentang</a>
+                    <a href="#berita" class="text-white/80 hover:text-accent transition">Berita</a>
+                    <a href="#agenda" class="text-white/80 hover:text-accent transition">Agenda</a>
+                    <a href="#pengurus" class="text-white/80 hover:text-accent transition">Pengurus</a>
+                    <a href="#admin-panel" class="text-accent font-semibold hover:text-accent/80 transition">Admin</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="hidden md:inline-flex px-5 py-2.5 bg-accent text-white font-semibold rounded-xl hover:bg-[#059669] transition shadow-lg shadow-accent/30 text-sm">
+                        Gabung Sekarang
+                    </button>
+                    <button class="lg:hidden text-white p-2 rounded-lg hover:bg-white/10 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="8" x2="20" y2="8"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== HERO ===== (singkat untuk admin) -->
+    <section class="relative min-h-[60vh] flex items-center overflow-hidden">
+        <div class="absolute inset-0 w-full h-full overflow-hidden">
+            <video class="w-full h-full object-cover" autoplay muted loop playsinline>
+                <source src="https://cdn.pixabay.com/video/2022/12/18/142840-739921107_large.mp4" type="video/mp4" />
+            </video>
+            <div class="absolute inset-0 hero-gradient"></div>
+            <div class="absolute inset-0 bg-grid-pattern opacity-20"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 py-20 text-white">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-medium mb-6 animate-pulse-slow">
+                    <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                    Dashboard & Admin Panel
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight text-shadow">
+                    Panel <span class="gradient-text">Administrasi</span>
+                </h1>
+                <p class="text-lg text-white/70 mt-4 max-w-xl">
+                    Kelola organisasi, pantau aktivitas, dan akses data real-time.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== ADMIN PANEL (Full Page) ===== -->
+    <section id="admin-panel" class="py-8 bg-[#f4f7f6]">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Sidebar -->
+                <div class="admin-sidebar rounded-2xl overflow-hidden p-4 w-full lg:w-64 flex-shrink-0">
+                    <div class="mb-6 px-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">A</div>
+                            <div>
+                                <p class="text-sm font-semibold text-white">Admin HPPMI</p>
+                                <p class="text-xs text-white/50">Super Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="space-y-1">
+                        <a href="#" class="active"><span>📊</span> Dashboard</a>
+                        <a href="#"><span>👥</span> Anggota</a>
+                        <a href="#"><span>📰</span> Berita</a>
+                        <a href="#"><span>📅</span> Agenda</a>
+                        <a href="#"><span>🖼️</span> Galeri</a>
+                        <a href="#"><span>📁</span> Dokumen</a>
+                        <a href="#"><span>⚙️</span> Pengaturan</a>
+                        <a href="#"><span>🚪</span> Logout</a>
+                    </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 space-y-6">
+                    <!-- Header with live indicator -->
+                    <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm">
+                        <div>
+                            <h2 class="text-xl font-bold text-gray-800">Dashboard Real-time</h2>
+                            <p class="text-sm text-gray-400">Selamat datang, Admin! Data diperbarui secara otomatis.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400">Status:</span>
+                            <span class="flex items-center gap-2 text-sm text-green-600 font-medium">
+                                <span class="live-dot"></span> Live
+                            </span>
+                            <span class="text-xs text-gray-400" id="lastUpdate">Terakhir: sekarang</span>
+                        </div>
+                    </div>
+
+                    <!-- Stat Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="statsContainer">
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-gray-400 font-medium">Total Anggota</p>
+                                    <p class="stat-number text-3xl" id="totalMembers">2,847</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl">👥</div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                <span class="text-green-600">↑ 12%</span>
+                                <span class="text-gray-400">dari periode sebelumnya</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-gray-400 font-medium">Komisariat</p>
+                                    <p class="stat-number text-3xl" id="totalComisariat">19</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-2xl">🏛️</div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                <span class="text-green-600">+ 1 Lembaga Otonom</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-gray-400 font-medium">Kegiatan 2025</p>
+                                    <p class="stat-number text-3xl" id="totalEvents">24</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center text-2xl">📅</div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                <span class="text-green-600">↑ 8 kegiatan</span>
+                                <span class="text-gray-400">dari 2024</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-gray-400 font-medium">Artikel Terbit</p>
+                                    <p class="stat-number text-3xl" id="totalArticles">156</p>
+                                </div>
+                                <div class="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center text-2xl">📰</div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                <span class="text-green-600">↑ 23</span>
+                                <span class="text-gray-400">tahun ini</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Two columns: Activity & Quick Info -->
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- Activity Timeline -->
+                        <div class="dashboard-card">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-gray-900">🔄 Aktivitas Terbaru</h3>
+                                <span class="text-xs text-green-600 flex items-center gap-1">
+                                    <span class="live-dot"></span> Live
+                                </span>
+                            </div>
+                            <div class="activity-timeline space-y-0" id="activityFeed">
+                                <div class="item">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-sm">Milad ke-62 & Peresmian Sekretariat</p>
+                                            <p class="text-xs text-gray-400">10 Nov 2025 • Jl. Cempaka No. 89</p>
+                                        </div>
+                                        <span class="badge-status done">Selesai</span>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-sm">Sosialisasi PTN ke 25 SMA/MA</p>
+                                            <p class="text-xs text-gray-400">5-17 Jan 2026 • Kab. Maros</p>
+                                        </div>
+                                        <span class="badge-status ongoing">Berjalan</span>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-sm">Tournament Mobile Legends</p>
+                                            <p class="text-xs text-gray-400">27-30 Nov 2025 • Gazebo Camba</p>
+                                        </div>
+                                        <span class="badge-status done">Selesai</span>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-sm">Semarak Anak Sholeh & Safari Ramadhan</p>
+                                            <p class="text-xs text-gray-400">16 Mar 2026 • Masjid Nurul Muslim</p>
+                                        </div>
+                                        <span class="badge-status upcoming">Mendatang</span>
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-800 text-sm">Aksi Bersih Sungai & Penanaman Pohon</p>
+                                            <p class="text-xs text-gray-400">29 Jun 2025 • Mattirotasi</p>
+                                        </div>
+                                        <span class="badge-status done">Selesai</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Info & Progress -->
+                        <div class="dashboard-card">
+                            <h3 class="font-bold text-gray-900 mb-4">📋 Informasi Cepat</h3>
+                            <div class="space-y-3" id="quickInfo">
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm text-gray-600">Status Organisasi</span>
+                                    <span class="text-sm font-semibold text-green-600">● Aktif</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm text-gray-600">Periode Kepengurusan</span>
+                                    <span class="text-sm font-semibold text-primary">2023-2025</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm text-gray-600">Ketua Umum</span>
+                                    <span class="text-sm font-semibold text-gray-800">Dandi Samalewa</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm text-gray-600">Jumlah Komisariat</span>
+                                    <span class="text-sm font-semibold text-gray-800">19 + 1 Lembaga Otonom</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                                    <span class="text-sm text-gray-600">Tahun Berdiri</span>
+                                    <span class="text-sm font-semibold text-accent">1963 (62 tahun)</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-primary/5 rounded-2xl">
+                                <h4 class="font-semibold text-gray-800 text-sm mb-3">📈 Capaian Program 2025</h4>
+                                <div class="space-y-2" id="progressBars">
+                                    <div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-gray-600">Sosialisasi PTN</span>
+                                            <span class="text-accent font-semibold" id="prog1">85%</span>
+                                        </div>
+                                        <div class="w-full h-1.5 bg-gray-200 rounded-full mt-1">
+                                            <div class="h-1.5 bg-accent rounded-full" style="width:85%" id="bar1"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-gray-600">Aksi Lingkungan</span>
+                                            <span class="text-accent font-semibold" id="prog2">70%</span>
+                                        </div>
+                                        <div class="w-full h-1.5 bg-gray-200 rounded-full mt-1">
+                                            <div class="h-1.5 bg-accent rounded-full" style="width:70%" id="bar2"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-xs">
+                                            <span class="text-gray-600">Minat & Bakat</span>
+                                            <span class="text-accent font-semibold" id="prog3">60%</span>
+                                        </div>
+                                        <div class="w-full h-1.5 bg-gray-200 rounded-full mt-1">
+                                            <div class="h-1.5 bg-accent rounded-full" style="width:60%" id="bar3"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Data Anggota (simulasi) -->
+                    <div class="dashboard-card overflow-hidden">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-gray-900">📋 Data Anggota Terbaru</h3>
+                            <button class="text-xs text-accent font-medium hover:underline">Lihat Semua</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-gray-500">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left">Nama</th>
+                                        <th class="px-4 py-2 text-left">Komisariat</th>
+                                        <th class="px-4 py-2 text-left">Status</th>
+                                        <th class="px-4 py-2 text-left">Bergabung</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="memberTable">
+                                    <tr class="border-t border-gray-100">
+                                        <td class="px-4 py-2 font-medium">Andi Maulana</td>
+                                        <td class="px-4 py-2">UNM</td>
+                                        <td class="px-4 py-2"><span class="badge-status ongoing">Aktif</span></td>
+                                        <td class="px-4 py-2 text-gray-400">2025</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-100">
+                                        <td class="px-4 py-2 font-medium">Nurul Hikmah</td>
+                                        <td class="px-4 py-2">UNIBOS</td>
+                                        <td class="px-4 py-2"><span class="badge-status ongoing">Aktif</span></td>
+                                        <td class="px-4 py-2 text-gray-400">2024</td>
+                                    </tr>
+                                    <tr class="border-t border-gray-100">
+                                        <td class="px-4 py-2 font-medium">Muhammad Irfan</td>
+                                        <td class="px-4 py-2">POLIBOS</td>
+                                        <td class="px-4 py-2"><span class="badge-status done">Nonaktif</span></td>
+                                        <td class="px-4 py-2 text-gray-400">2023</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Footer Dashboard -->
+                    <div class="text-center text-xs text-gray-400 border-t border-gray-100 pt-4">
+                        <p>🔄 Dashboard ini diperbarui secara realtime setiap 5 detik | <span class="text-green-600" id="liveTimestamp">Terakhir update: sekarang</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== Sisa Halaman (Tentang, Berita, dll) ===== -->
+    <!-- (Konten sebelumnya tetap sama, saya ringkas agar tidak terlalu panjang) -->
+    <!-- ===== TENTANG ===== -->
+    <section id="tentang" class="section-padding bg-[#f4f7f6]">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary font-semibold rounded-full text-sm mb-4">Tentang Kami</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">Sejarah <span class="text-primary">HPPMI Maros</span></h2>
+                <div class="w-24 h-1 bg-accent mx-auto mt-4 rounded-full"></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="relative">
+                        <div class="rounded-3xl overflow-hidden shadow-2xl">
+                            <img src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=800&h=600&fit=crop" alt="HPPMI Maros" class="w-full h-80 object-cover" />
+                        </div>
+                        <div class="absolute -bottom-6 -right-6 glass p-4 rounded-2xl border border-accent/30 bg-primary/90">
+                            <span class="text-accent font-bold text-3xl">62</span>
+                            <span class="text-white/80 text-sm block">Tahun Mengabdi</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Organisasi Tertua di Kabupaten Maros</h3>
+                    <p class="text-gray-600 leading-relaxed mb-6">
+                        <strong>HPPMI Maros</strong> didirikan pada tahun <strong>1963</strong> dan merupakan <strong>organisasi daerah tertua di Kabupaten Maros</strong>. 
+                        Selama lebih dari enam dekade, HPPMI Maros telah melahirkan kader-kader terbaik.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                            <div class="text-accent font-bold text-sm">Visi</div>
+                            <p class="text-xs text-gray-600 mt-1">"Satu Arah Menyongsong Era Emas Kepemimpinan HPPMI Maros"</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                            <div class="text-accent font-bold text-sm">Misi</div>
+                            <p class="text-xs text-gray-600 mt-1">Mitra konstruktif & kontrol sosial bagi Pemkab Maros</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== BERITA ===== -->
+    <section id="berita" class="section-padding bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12">
+                <div>
+                    <span class="inline-block px-4 py-1.5 bg-primary/10 text-primary font-semibold rounded-full text-sm mb-4">Berita</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">Berita <span class="text-primary">Terbaru</span></h2>
+                </div>
+                <button class="text-primary font-medium hover:text-accent transition flex items-center gap-1 mt-4 sm:mt-0">
+                    Lihat Semua →
+                </button>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 card-hover">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c7f1?w=600&h=400&fit=crop" alt="Berita" class="w-full h-48 object-cover" />
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-xs text-accent font-semibold mb-2">
+                            <span>Organisasi</span>
+                            <span>•</span>
+                            <span>10 Nov 2025</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Milad ke-62 HPPMI Maros & Peresmian Sekretariat Baru</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Dihadiri Bupati Maros dan Kapolres Maros.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 card-hover">
+                    <img src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&h=400&fit=crop" alt="Berita" class="w-full h-48 object-cover" />
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-xs text-accent font-semibold mb-2">
+                            <span>Pendidikan</span>
+                            <span>•</span>
+                            <span>Jan 2026</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Sosialisasi PTN ke 25 SMA/MA se-Maros</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Program Komisariat UNM memberikan pemahaman tentang dunia perguruan tinggi.</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 card-hover">
+                    <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&h=400&fit=crop" alt="Berita" class="w-full h-48 object-cover" />
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-xs text-accent font-semibold mb-2">
+                            <span>Lingkungan</span>
+                            <span>•</span>
+                            <span>29 Jun 2025</span>
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Aksi Bersih Sungai & Penanaman Pohon</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">LPA HPPMI Maros menggelar aksi di Desa Mattirotasi.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="bg-gray-900 text-white/70 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-4 py-16">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                            <span class="text-white font-extrabold text-sm">H</span>
+                        </div>
+                        <div>
+                            <span class="text-white font-bold text-lg">HPPMI</span>
+                            <span class="text-accent text-sm block -mt-1">Maros</span>
+                        </div>
+                    </div>
+                    <p class="text-sm leading-relaxed">Organisasi daerah tertua di Kabupaten Maros. Berdiri sejak 1963.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Tautan Cepat</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-accent transition">Beranda</a></li>
+                        <li><a href="#tentang" class="hover:text-accent transition">Tentang</a></li>
+                        <li><a href="#berita" class="hover:text-accent transition">Berita</a></li>
+                        <li><a href="#admin-panel" class="hover:text-accent transition">Admin</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Data Organisasi</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li class="text-white/60">📅 62 Tahun (1963)</li>
+                        <li class="text-white/60">🏛️ 19 Komisariat</li>
+                        <li class="text-white/60">📍 Jl. Cempaka No. 89</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Kontak</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li>📌 Jl. Cempaka No. 89, Maros Baru</li>
+                        <li>📧 info@hppmi-maros.or.id</li>
+                        <li>📞 +62 852 1234 5678</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/5 mt-12 pt-8 text-center text-xs text-white/40">
+                <p>© 2026 HPPMI Maros. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== WHATSAPP FLOAT ===== -->
+    <a href="https://wa.me/6285212345678" target="_blank" class="fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-2xl shadow-green-500/30 hover:scale-110 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    </a>
+
+    <!-- ===== JAVASCRIPT REALTIME UPDATE ===== -->
+    <script>
+        (function() {
+            // Data awal
+            let members = 2847;
+            let comisariat = 19;
+            let events = 24;
+            let articles = 156;
+            let progress = [85, 70, 60];
+
+            // Elemen
+            const totalMembers = document.getElementById('totalMembers');
+            const totalComisariat = document.getElementById('totalComisariat');
+            const totalEvents = document.getElementById('totalEvents');
+            const totalArticles = document.getElementById('totalArticles');
+            const progEls = [document.getElementById('prog1'), document.getElementById('prog2'), document.getElementById('prog3')];
+            const barEls = [document.getElementById('bar1'), document.getElementById('bar2'), document.getElementById('bar3')];
+            const lastUpdate = document.getElementById('lastUpdate');
+            const liveTimestamp = document.getElementById('liveTimestamp');
+
+            // Fungsi update angka
+            function updateStats() {
+                // Fluktuasi acak
+                members += Math.floor(Math.random() * 5) - 2;
+                if (members < 2800) members = 2800;
+                comisariat += Math.floor(Math.random() * 2) - 0; // tetap 19
+                if (comisariat < 19) comisariat = 19;
+                events += Math.floor(Math.random() * 3) - 1;
+                if (events < 22) events = 22;
+                articles += Math.floor(Math.random() * 4) - 1;
+                if (articles < 150) articles = 150;
+
+                // Update DOM
+                totalMembers.textContent = members.toLocaleString();
+                totalComisariat.textContent = comisariat;
+                totalEvents.textContent = events;
+                totalArticles.textContent = articles;
+
+                // Update progress (naik turun)
+                progress = progress.map(p => {
+                    let change = (Math.random() * 4) - 2;
+                    let newVal = p + change;
+                    if (newVal < 30) newVal = 30;
+                    if (newVal > 100) newVal = 100;
+                    return Math.round(newVal);
+                });
+                progress.forEach((val, i) => {
+                    progEls[i].textContent = val + '%';
+                    barEls[i].style.width = val + '%';
+                });
+
+                // Timestamp
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                lastUpdate.textContent = 'Terakhir: ' + timeStr;
+                liveTimestamp.textContent = 'Terakhir update: ' + timeStr;
+            }
+
+            // Update setiap 5 detik
+            setInterval(updateStats, 5000);
+
+            // Inisialisasi pertama
+            updateStats();
+
+            // Tambahkan aktivitas baru secara periodik
+            const activityFeed = document.getElementById('activityFeed');
+            const activities = [
+                { text: 'Pendaftaran anggota baru: 5 orang', time: '5 menit lalu', status: 'ongoing' },
+                { text: 'Rapat koordinasi pengurus pusat', time: '15 menit lalu', status: 'ongoing' },
+                { text: 'Pengumuman lomba essay nasional', time: '30 menit lalu', status: 'upcoming' },
+                { text: 'Submit proposal bantuan Pemkab', time: '1 jam lalu', status: 'done' },
+                { text: 'Webinar kebangsaan bersama alumni', time: '2 jam lalu', status: 'done' }
+            ];
+            let activityIndex = 0;
+
+            function addNewActivity() {
+                const act = activities[activityIndex % activities.length];
+                activityIndex++;
+
+                // Buat elemen baru
+                const item = document.createElement('div');
+                item.className = 'item';
+                const badgeClass = act.status === 'ongoing' ? 'ongoing' : act.status === 'upcoming' ? 'upcoming' : 'done';
+                const badgeText = act.status === 'ongoing' ? 'Berjalan' : act.status === 'upcoming' ? 'Mendatang' : 'Selesai';
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-medium text-gray-800 text-sm">${act.text}</p>
+                            <p class="text-xs text-gray-400">${act.time}</p>
+                        </div>
+                        <span class="badge-status ${badgeClass}">${badgeText}</span>
+                    </div>
+                `;
+                // Hapus item terakhir jika lebih dari 5
+                if (activityFeed.children.length >= 6) {
+                    activityFeed.removeChild(activityFeed.lastElementChild);
+                }
+                // Sisipkan di awal
+                activityFeed.insertBefore(item, activityFeed.firstChild);
+            }
+
+            // Tambah aktivitas setiap 10 detik
+            setInterval(addNewActivity, 10000);
+
+            // Update tabel anggota (simulasi)
+            const memberTable = document.getElementById('memberTable');
+            const names = ['Rina Rahmawati', 'Ahmad Fauzan', 'Siti Aisyah', 'Budi Santoso', 'Dewi Lestari'];
+            const coms = ['UNM', 'UNIBOS', 'POLIBOS', 'UIM', 'Camba'];
+            const statuses = ['Aktif', 'Aktif', 'Nonaktif', 'Aktif', 'Aktif'];
+            let memberIndex = 0;
+
+            function updateMemberTable() {
+                // Ganti baris pertama dengan data baru
+                const firstRow = memberTable.querySelector('tr');
+                if (firstRow) {
+                    const name = names[memberIndex % names.length];
+                    const com = coms[memberIndex % coms.length];
+                    const status = statuses[memberIndex % statuses.length];
+                    const badgeClass = status === 'Aktif' ? 'ongoing' : 'done';
+                    firstRow.innerHTML = `
+                        <td class="px-4 py-2 font-medium">${name}</td>
+                        <td class="px-4 py-2">${com}</td>
+                        <td class="px-4 py-2"><span class="badge-status ${badgeClass}">${status}</span></td>
+                        <td class="px-4 py-2 text-gray-400">${2025 - (memberIndex % 3)}</td>
+                    `;
+                    // Pindahkan ke bawah
+                    memberTable.appendChild(firstRow);
+                    memberIndex++;
+                }
+            }
+
+            // Update tabel setiap 8 detik
+            setInterval(updateMemberTable, 8000);
+
+        })();
+    </script>
+</body>
+</html>
